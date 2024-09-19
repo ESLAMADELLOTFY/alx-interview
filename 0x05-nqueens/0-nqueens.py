@@ -1,84 +1,44 @@
 #!/usr/bin/python3
-"""
-Task 0. N queens
-
-N-Queens Challenge
-"""
-
+""" N queens """
 import sys
 
 
-def printSolution(board):
-    """printSolution
-    """
-    solution = []
-    for i in range(len(board)):
-        for j in range(len(board)):
-            if board[i][j] == 1:
-                solution.append([i, j])
-    print(solution)
+if len(sys.argv) > 2 or len(sys.argv) < 2:
+    print("Usage: nqueens N")
+    exit(1)
+
+if not sys.argv[1].isdigit():
+    print("N must be a number")
+    exit(1)
+
+if int(sys.argv[1]) < 4:
+    print("N must be at least 4")
+    exit(1)
+
+n = int(sys.argv[1])
 
 
-def isSafe(board, row, col):
-    """isSafe
-    """
-    for i in range(col):
-        if board[row][i] == 1:
-            return False
-
-    for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
-        if board[i][j] == 1:
-            return False
-
-    for i, j in zip(range(row, len(board), 1), range(col, -1, -1)):
-        if board[i][j] == 1:
-            return False
-
-    return True
+def queens(n, i=0, a=[], b=[], c=[]):
+    """ find possible positions """
+    if i < n:
+        for j in range(n):
+            if j not in a and i + j not in b and i - j not in c:
+                yield from queens(n, i + 1, a + [j], b + [i + j], c + [i - j])
+    else:
+        yield a
 
 
-def solveNQUtil(board, col):
-    """solveNQUtil
-    """
-    if col >= len(board):
-        printSolution(board)
-        return True
-
-    res = False
-    for i in range(len(board)):
-        if isSafe(board, i, col):
-            board[i][col] = 1
-            res = solveNQUtil(board, col + 1) or res
-            board[i][col] = 0
-
-    return res
+def solve(n):
+    """ solve """
+    k = []
+    i = 0
+    for solution in queens(n, 0):
+        for s in solution:
+            k.append([i, s])
+            i += 1
+        print(k)
+        k = []
+        i = 0
 
 
-def solveNQ(N):
-    """solveNQ
-
-    The function that starts the n-queen algorithm.
-    """
-    board = [[0 for _ in range(N)] for _ in range(N)]
-    if not solveNQUtil(board, 0):
-        print("Solution does not exist")
-        return False
-    return True
-
-
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: nqueens N")
-        sys.exit(1)
-
-    try:
-        N = int(sys.argv[1])
-    except ValueError:
-        print("N must be a number")
-        sys.exit(1)
-
-    if N < 4:
-        print("N must be at least 4")
-        sys.exit(1)
-
-    solveNQ(N)
+solve(n)
