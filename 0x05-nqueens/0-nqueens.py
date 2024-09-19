@@ -2,68 +2,47 @@
 """Module with solution for the N-Queens challenge with backtracking"""
 import sys
 
-
-def chessboard(pos, n):
-    """Function to print chessboard with appropriate positions of queens"""
-
-    board = []
-
-    for RANK in range(n):
-        for FILE in range(n):
-            if FILE == pos[RANK]:
-                board.append([RANK, FILE])
-
+def print_board(board):
+    """Function to print the board with positions of queens."""
     print(board)
 
+def is_safe(board, rank, file):
+    """Function to check if placing a queen at (rank, file) is safe."""
+    for r in range(rank):
+        # Check the same column and diagonals
+        if board[r] == file or \
+           board[r] - r == file - rank or \
+           board[r] + r == file + rank:
+            return False
+    return True
 
-def safe_pos(pos, RANK, FILE, n):
-    """Function to determine safe a square to place a queen"""
-
-    if (pos[RANK] == FILE) or (pos[RANK] == FILE - RANK + n) or \
-            (pos[RANK] == RANK - n + FILE):
-        return True
-    return False
-
-
-def get_safe_pos(board, rank, n):
-    """Function to get all safe positions to place queens with recursion"""
-
+def solve_nqueens(board, rank, n):
+    """Function to solve the N-Queens problem using backtracking."""
     if rank == n:
-        chessboard(board, n)
+        print_board(board)
     else:
-        for FILE in range(n):
-            safe = True
+        for file in range(n):
+            if is_safe(board, rank, file):
+                board[rank] = file  # Place the queen
+                solve_nqueens(board, rank + 1, n)  # Recur to place next queen
 
-            for RANK in range(rank):
-                if safe_pos(board, RANK, FILE, rank):
-                    safe = False
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: nqueens N")
+        exit(1)
 
-            if safe:
-                board[rank] = FILE
-                get_safe_pos(board, rank + 1, n)
+    try:
+        n = int(sys.argv[1])
+    except ValueError:
+        print("N must be a number")
+        exit(1)
 
+    if n < 4:
+        print("N must be at least 4")
+        exit(1)
 
-def create_board(n):
-    """Function to generate chessboard of n-size"""
+    board = [-1] * n  # Initialize board with -1 (no queens placed)
+    solve_nqueens(board, 0, n)
 
-    return [0 * n for i in range(n)]
-
-
-if len(sys.argv) != 2:
-    print("Usage: nqueens N")
-    exit(1)
-
-try:
-    n = int(sys.argv[1])
-except Exception:
-    print("N must be a number")
-    exit(1)
-
-if (n < 4):
-    print("N must be at least 4")
-    exit(1)
-
-
-board = create_board(int(n))
-rank = 0
-get_safe_pos(board, rank, int(n))
+if __name__ == "__main__":
+    main()
